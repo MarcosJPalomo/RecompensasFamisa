@@ -12,7 +12,7 @@ $success_message = '';
 $error_message = '';
 
 // Buscar usuario si se proporciona
-$search_username = isset($_GET['search_username']) ? trim($_GET['search_username']) : '';
+$search_term = isset($_GET['search_term']) ? trim($_GET['search_term']) : '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
     $redemption_id = $_POST['redemption_id'];
@@ -64,27 +64,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
     $conn->close();
 }
 
-// Consultar canjes con filtro opcional por usuario
+// Consultar canjes con filtro opcional por usuario o employee_id
 $conn = conectarDB();
 
-if (!empty($search_username)) {
+if (!empty($search_term)) {
     $sql = "SELECT r.id, r.redeemed_at, r.status, 
-                   u.username, u.full_name, 
+                   u.username, u.full_name, u.employee_id,
                    rw.name as reward_name, rw.points_required 
             FROM redemptions r
             JOIN users u ON r.user_id = u.id
             JOIN rewards rw ON r.reward_id = rw.id
-            WHERE u.username LIKE ? OR u.full_name LIKE ?
+            WHERE u.username LIKE ? 
+               OR u.full_name LIKE ? 
+               OR u.employee_id LIKE ?
             ORDER BY r.redeemed_at DESC";
     
     $stmt = $conn->prepare($sql);
-    $search_pattern = "%$search_username%";
-    $stmt->bind_param("ss", $search_pattern, $search_pattern);
+    $search_pattern = "%$search_term%";
+    $stmt->bind_param("sss", $search_pattern, $search_pattern, $search_pattern);
     $stmt->execute();
     $result = $stmt->get_result();
 } else {
     $sql = "SELECT r.id, r.redeemed_at, r.status, 
-                   u.username, u.full_name, 
+                   u.username, u.full_name, u.employee_id,
                    rw.name as reward_name, rw.points_required 
             FROM redemptions r
             JOIN users u ON r.user_id = u.id
@@ -173,38 +175,78 @@ $conn->close();
                 <div class="alert alert-danger mb-4"><?php echo $error_message; ?></div>
             <?php endif; ?>
 
-            <!-- Formulario de búsqueda con alineación precisa -->
+            <!-- Formulario de búsqueda moderno -->
             <div class="mb-4">
-                <form method="get" action="">
-                    <div class="input-group input-group-sm">
-                        <input type="text" class="form-control" id="search_username" name="search_username" 
-                            placeholder="Buscar por nombre o usuario" value="<?php echo htmlspecialchars($search_username); ?>">
-                        <button type="submit" class="btn btn-primary d-flex align-items-center justify-content-center" style="height: 31px; width: 38px;">
-                            <i class="fas fa-search"></i>
-                        </button>
-                        <?php if (!empty($search_username)): ?>
-                        <a href="redemptions.php" class="btn btn-outline-secondary d-flex align-items-center justify-content-center" style="height: 31px; width: 38px;">
-                            <i class="fas fa-times"></i>
-                        </a>
-                        <?php endif; ?>
+                <form method="get" action="" class="search-form">
+                    <div class="card shadow-sm border-0 p-0 bg-light">
+                        <div class="card-body p-2">
+                            <div class="row g-0 align-items-center">
+                                <div class="col-auto ps-3 pe-2">
+                                    <i class="fas fa-search text-primary fs-4"></i>
+                                </div>
+                                <div class="col">
+                                    <input type="text" class="form-control border-0 bg-transparent shadow-none" id="search_term" name="search_term" 
+                                        placeholder="Buscar por nombre, usuario o ficha de empleado" value="<?php echo htmlspecialchars($search_term); ?>">
+                                </div>
+                                <div class="col-auto">
+                                    <div class="d-flex">
+                                        <?php if (!empty($search_term)): ?>
+                                        <a href="redemptions.php" class="btn btn-sm btn-link text-secondary" data-bs-toggle="tooltip" title="Limpiar búsqueda">
+                                            <i class="fas fa-times-circle fs-5"></i>
+                                        </a>
+                                        <?php endif; ?>
+                                        <button type="submit" class="btn btn-primary px-4 rounded-pill">
+                                            Buscar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-text">Ingrese el nombre o usuario para filtrar los resultados</div>
+                    <div class="form-text ps-2 mt-2">
+                        <i class="fas fa-info-circle me-1 text-muted"></i> Ingrese nombre, usuario o número de ficha para filtrar los resultados
+                    </div>
                 </form>
             </div>
             
+            <style>
+            /* Estilos para la barra de búsqueda moderna */
+            .search-form .form-control:focus {
+                box-shadow: none;
+            }
+            .search-form .card {
+                border-radius: 50px;
+                transition: all 0.3s ease;
+            }
+            .search-form .card:hover, .search-form .card:focus-within {
+                box-shadow: 0 5px 15px rgba(0,0,0,0.08) !important;
+                background-color: white !important;
+            }
+            .search-form .btn-primary {
+                transition: all 0.3s ease;
+            }
+            .search-form .btn-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            }
+            .search-form .btn-link:hover {
+                transform: scale(1.1);
+            }
+            </style>
+            
             <?php if (empty($redemptions)): ?>
                 <div class="alert alert-info">
-                    <?php if (!empty($search_username)): ?>
-                        <p class="mb-0">No se encontraron canjes para el usuario "<?php echo htmlspecialchars($search_username); ?>".</p>
+                    <?php if (!empty($search_term)): ?>
+                        <p class="mb-0">No se encontraron canjes para el término de búsqueda "<?php echo htmlspecialchars($search_term); ?>".</p>
                     <?php else: ?>
                         <p class="mb-0">No hay canjes registrados en el sistema.</p>
                     <?php endif; ?>
                 </div>
             <?php else: ?>
                 <!-- Resumen de resultados de búsqueda si es relevante -->
-                <?php if (!empty($search_username)): ?>
+                <?php if (!empty($search_term)): ?>
                     <div class="alert alert-info mb-4">
-                        Mostrando <?php echo count($redemptions); ?> canjes para la búsqueda: "<?php echo htmlspecialchars($search_username); ?>"
+                        Mostrando <?php echo count($redemptions); ?> canjes para la búsqueda: "<?php echo htmlspecialchars($search_term); ?>"
                     </div>
                 <?php endif; ?>
 
@@ -214,6 +256,7 @@ $conn->close();
                             <tr>
                                 <th>ID</th>
                                 <th>Usuario</th>
+                                <th>Ficha</th>
                                 <th>Recompensa</th>
                                 <th>Puntos</th>
                                 <th>Fecha Solicitud</th>
@@ -226,6 +269,7 @@ $conn->close();
                                 <tr>
                                     <td><?php echo $redemption['id']; ?></td>
                                     <td><?php echo htmlspecialchars($redemption['full_name']); ?> <br><small class="text-muted">(<?php echo htmlspecialchars($redemption['username']); ?>)</small></td>
+                                    <td><?php echo htmlspecialchars($redemption['employee_id']); ?></td>
                                     <td><?php echo htmlspecialchars($redemption['reward_name']); ?></td>
                                     <td><?php echo $redemption['points_required']; ?></td>
                                     <td><?php echo date('d/m/Y H:i', strtotime($redemption['redeemed_at'])); ?></td>

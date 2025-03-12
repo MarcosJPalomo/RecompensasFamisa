@@ -18,6 +18,74 @@ updateSessionData($_SESSION['user_id']);
     <link rel="stylesheet" href="assets/css/style.css">
     <!-- Fuente Google para mejor apariencia -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* Estilos adicionales para los botones del menú */
+        .menu-card {
+            transition: all 0.3s ease;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            height: 100%;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .menu-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .menu-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .menu-card:hover .menu-icon {
+            transform: scale(1.2);
+        }
+        
+        .menu-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .menu-description {
+            color: #6c757d;
+            flex-grow: 1;
+        }
+        
+        .menu-header {
+            background: linear-gradient(135deg, var(--primary-red), #7a1017);
+            color: white;
+            padding: 20px;
+            border-radius: 15px 15px 0 0;
+        }
+        
+        .menu-body {
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            flex-grow: 1;
+        }
+        
+        .btn-menu {
+            width: 100%;
+            padding: 12px;
+            font-weight: 500;
+            margin-top: 15px;
+            border-radius: 8px;
+        }
+        
+        .dashboard-card {
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+    </style>
 </head>
 <body>
     <header class="py-2 shadow-sm">
@@ -66,65 +134,192 @@ updateSessionData($_SESSION['user_id']);
             </div>
         </div>
     </header>
-    <main class="d-flex align-items-center">
-        <div class="container text-center">
-            <h2 class="text-dark-red mb-4 main-title animate__animated animate__fadeInDown">Bienvenido al Programa de Recompensas</h2>
+    <main class="d-flex align-items-center py-5">
+        <div class="container">
+            <h2 class="text-dark-red mb-4 main-title animate__animated animate__fadeInDown text-center">Bienvenido al Programa de Recompensas</h2>
+            
             <?php if(isset($_SESSION['user_id'])): ?>
-                <div class="card shadow-lg mx-auto user-card animate__animated animate__zoomIn" style="max-width: 700px;">
-                    <div class="card-body">
-                        <h3 class="card-title mb-3 animate__animated animate__fadeIn">Hola, <?php echo $_SESSION['full_name']; ?></h3>
-                        <div class="row mb-3">
-                            <div class="col-md-6 fade-in-up delay-1">
-                                <p class="card-text">Rol: <span class="badge bg-info"><?php echo ucfirst($_SESSION['role']); ?></span></p>
+                <!-- Dashboard para usuarios logueados -->
+                <div class="dashboard-card mx-auto animate__animated animate__zoomIn mb-5" style="max-width: 900px;">
+                    <div class="card-body p-4">
+                        <h3 class="card-title mb-4 animate__animated animate__fadeIn text-center">
+                            <i class="fas fa-user-circle text-primary me-2"></i>
+                            Hola, <?php echo $_SESSION['full_name']; ?>
+                        </h3>
+                        
+                        <div class="row mb-4 align-items-center">
+                            <div class="col-md-4 mb-3 mb-md-0 text-center text-md-start">
+                                <span class="badge bg-info fade-in-up delay-1 fs-6 px-3 py-2">
+                                    <i class="fas fa-id-badge me-1"></i> <?php echo ucfirst($_SESSION['role']); ?>
+                                </span>
                             </div>
-                            <div class="col-md-6 fade-in-up delay-2">
-                                <p class="card-text">Puntos acumulados: <span class="badge bg-primary points-counter"><?php echo $_SESSION['total_points']; ?></span></p>
+                            <div class="col-md-4 mb-3 mb-md-0 text-center">
+                                <div class="d-flex justify-content-center align-items-center">
+                                    <i class="fas fa-coins text-warning me-2 fa-2x"></i>
+                                    <div>
+                                        <span class="d-block text-muted fs-6">Puntos acumulados:</span>
+                                        <span class="badge bg-primary fs-5 points-counter px-3 py-2"><?php echo $_SESSION['total_points']; ?></span>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="d-flex flex-wrap justify-content-center gap-3 mt-3">
-                            <a href="pages/submit_idea.php" class="btn btn-primary animate__animated animate__pulse animate__infinite" style="--animate-duration: 2.5s;">Enviar una nueva idea</a>
-                            <a href="pages/ideas.php" class="btn btn-secondary fade-in-right delay-1">Mis ideas</a>
-                            <a href="pages/rewards.php" class="btn btn-success fade-in-right delay-2">Ver recompensas</a>
-                            <?php if($_SESSION['role'] === 'revisor' || $_SESSION['role'] === 'admin'): ?>
-                                <a href="pages/review.php" class="btn btn-warning fade-in-right delay-3">Revisar ideas</a>
-                            <?php endif; ?>
-                            <?php if($_SESSION['role'] === 'admin'): ?>
-                                <a href="pages/approve.php" class="btn btn-danger fade-in-right delay-4">Aprobar puntos</a>
-                            <?php endif; ?>
-                            <?php if($_SESSION['role'] === 'premiador' || $_SESSION['role'] === 'admin'): ?>
-                                <a href="pages/redemptions.php" class="btn btn-info fade-in-right delay-5">Canje de Recompensas</a>
-                            <?php endif; ?>
+                            <div class="col-md-4 text-center text-md-end">
+                                <a href="pages/submit_idea.php" class="btn btn-primary animate__animated animate__pulse animate__infinite" style="--animate-duration: 2.5s;">
+                                    <i class="fas fa-plus-circle me-1"></i> Nueva idea
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
-            <?php else: ?>
+
+                <!-- Menú de opciones como tarjetas -->
                 <div class="row justify-content-center">
-                    <div class="col-md-8">
+                    <!-- Tarjeta para Enviar Ideas -->
+                    <div class="col-md-4 col-lg-3 mb-4 animate__animated animate__fadeInUp animate__delay-1s">
+                        <div class="menu-card">
+                            <div class="menu-header">
+                                <h4 class="mb-0"><i class="fas fa-lightbulb me-2"></i> Ideas</h4>
+                            </div>
+                            <div class="menu-body">
+                                <i class="fas fa-lightbulb menu-icon text-warning"></i>
+                                <h5 class="menu-title">Enviar Ideas</h5>
+                                <p class="menu-description">Comparte tus propuestas para mejorar la empresa</p>
+                                <a href="pages/submit_idea.php" class="btn btn-primary btn-menu">
+                                    <i class="fas fa-plus-circle me-2"></i> Nueva Idea
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tarjeta para Mis Ideas -->
+                    <div class="col-md-4 col-lg-3 mb-4 animate__animated animate__fadeInUp animate__delay-2s">
+                        <div class="menu-card">
+                            <div class="menu-header">
+                                <h4 class="mb-0"><i class="fas fa-list-alt me-2"></i> Seguimiento</h4>
+                            </div>
+                            <div class="menu-body">
+                                <i class="fas fa-clipboard-list menu-icon text-info"></i>
+                                <h5 class="menu-title">Mis Ideas</h5>
+                                <p class="menu-description">Consulta el estado de todas tus ideas enviadas</p>
+                                <a href="pages/ideas.php" class="btn btn-info btn-menu text-white">
+                                    <i class="fas fa-search me-2"></i> Ver Mis Ideas
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tarjeta para Recompensas -->
+                    <div class="col-md-4 col-lg-3 mb-4 animate__animated animate__fadeInUp animate__delay-3s">
+                        <div class="menu-card">
+                            <div class="menu-header">
+                                <h4 class="mb-0"><i class="fas fa-gift me-2"></i> Premios</h4>
+                            </div>
+                            <div class="menu-body">
+                                <i class="fas fa-award menu-icon text-warning"></i>
+                                <h5 class="menu-title">Recompensas</h5>
+                                <p class="menu-description">Canjea tus puntos por increíbles premios</p>
+                                <a href="pages/rewards.php" class="btn btn-success btn-menu">
+                                    <i class="fas fa-gift me-2"></i> Ver Recompensas
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <?php if($_SESSION['role'] === 'revisor' || $_SESSION['role'] === 'admin'): ?>
+                    <!-- Tarjeta para Revisar Ideas -->
+                    <div class="col-md-4 col-lg-3 mb-4 animate__animated animate__fadeInUp animate__delay-4s">
+                        <div class="menu-card">
+                            <div class="menu-header">
+                                <h4 class="mb-0"><i class="fas fa-clipboard-check me-2"></i> Revisión</h4>
+                            </div>
+                            <div class="menu-body">
+                                <i class="fas fa-tasks menu-icon text-primary"></i>
+                                <h5 class="menu-title">Revisar Ideas</h5>
+                                <p class="menu-description">Evalúa y asigna puntos a las ideas recibidas</p>
+                                <a href="pages/review.php" class="btn btn-warning btn-menu text-dark">
+                                    <i class="fas fa-clipboard-check me-2"></i> Revisar Ideas
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+                    
+                    <?php if($_SESSION['role'] === 'admin'): ?>
+                    <!-- Tarjeta para Aprobar Puntos -->
+                    <div class="col-md-4 col-lg-3 mb-4 animate__animated animate__fadeInUp animate__delay-5s">
+                        <div class="menu-card">
+                            <div class="menu-header">
+                                <h4 class="mb-0"><i class="fas fa-check-circle me-2"></i> Aprobación</h4>
+                            </div>
+                            <div class="menu-body">
+                                <i class="fas fa-stamp menu-icon text-danger"></i>
+                                <h5 class="menu-title">Aprobar Puntos</h5>
+                                <p class="menu-description">Aprueba la asignación final de puntos</p>
+                                <a href="pages/approve.php" class="btn btn-danger btn-menu">
+                                    <i class="fas fa-check-double me-2"></i> Aprobar Puntos
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+                    
+                    <?php if($_SESSION['role'] === 'premiador' || $_SESSION['role'] === 'admin'): ?>
+                    <!-- Tarjeta para Canje de Recompensas -->
+                    <div class="col-md-4 col-lg-3 mb-4 animate__animated animate__fadeInUp animate__delay-6s">
+                        <div class="menu-card">
+                            <div class="menu-header">
+                                <h4 class="mb-0"><i class="fas fa-exchange-alt me-2"></i> Canjes</h4>
+                            </div>
+                            <div class="menu-body">
+                                <i class="fas fa-exchange-alt menu-icon text-info"></i>
+                                <h5 class="menu-title">Gestión de Canjes</h5>
+                                <p class="menu-description">Administra las solicitudes de recompensas</p>
+                                <a href="pages/redemptions.php" class="btn btn-info btn-menu text-white">
+                                    <i class="fas fa-sync-alt me-2"></i> Gestionar Canjes
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+                </div>
+                
+            <?php else: ?>
+                <!-- Página de bienvenida para usuarios no logueados -->
+                <div class="row justify-content-center">
+                    <div class="col-md-10 col-lg-8">
                         <div class="card shadow-lg animate__animated animate__fadeInUp">
-                            <div class="card-body p-4">
-                                <h3 class="mb-3 animate__animated animate__fadeInDown animate__delay-1s">¿Qué es el Programa de Recompensas?</h3>
-                                <p class="animate__animated animate__fadeIn animate__delay-1s">Este sistema permite a los empleados enviar ideas de mejora para la empresa, obtener puntos por ellas y canjear estos puntos por recompensas.</p>
+                            <div class="card-body p-5">
+                                <h3 class="mb-4 text-center animate__animated animate__fadeInDown animate__delay-1s">
+                                    <i class="fas fa-star text-warning me-2"></i>
+                                    ¿Qué es el Programa de Recompensas?
+                                </h3>
+                                <p class="lead text-center mb-5 animate__animated animate__fadeIn animate__delay-1s">
+                                    Este sistema permite a los empleados enviar ideas de mejora para la empresa, 
+                                    obtener puntos por ellas y canjear estos puntos por recompensas.
+                                </p>
                                 
                                 <div class="row mt-4">
                                     <div class="col-md-4 animate__animated animate__fadeInUp animate__delay-1s">
-                                        <div class="card h-100 highlight-container">
-                                            <div class="card-body text-center">
+                                        <div class="card h-100 highlight-container text-center shadow-sm">
+                                            <div class="card-body p-4">
+                                                <i class="fas fa-lightbulb fa-3x mb-3 text-primary"></i>
                                                 <h4>1. Envía ideas</h4>
                                                 <p>Comparte tus propuestas para mejorar procesos, productos o servicios.</p>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-md-4 animate__animated animate__fadeInUp animate__delay-2s">
-                                        <div class="card h-100 highlight-container">
-                                            <div class="card-body text-center">
+                                        <div class="card h-100 highlight-container text-center shadow-sm">
+                                            <div class="card-body p-4">
+                                                <i class="fas fa-coins fa-3x mb-3 text-warning"></i>
                                                 <h4>2. Gana puntos</h4>
                                                 <p>Las ideas son evaluadas y recibes puntos según su impacto y viabilidad.</p>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-md-4 animate__animated animate__fadeInUp animate__delay-3s">
-                                        <div class="card h-100 highlight-container">
-                                            <div class="card-body text-center">
+                                        <div class="card h-100 highlight-container text-center shadow-sm">
+                                            <div class="card-body p-4">
+                                                <i class="fas fa-gift fa-3x mb-3 text-success"></i>
                                                 <h4>3. Obtén recompensas</h4>
                                                 <p>Canjea tus puntos por diversos premios y reconocimientos.</p>
                                             </div>
@@ -132,9 +327,13 @@ updateSessionData($_SESSION['user_id']);
                                     </div>
                                 </div>
                                 
-                                <div class="text-center mt-4 animate__animated animate__fadeInUp animate__delay-4s">
-                                    <a href="login.php" class="btn btn-primary me-2 pulse">Iniciar sesión</a>
-                                    <a href="register.php" class="btn btn-outline-primary">Registrarse</a>
+                                <div class="text-center mt-5 animate__animated animate__fadeInUp animate__delay-4s">
+                                    <a href="login.php" class="btn btn-lg btn-primary me-3 pulse">
+                                        <i class="fas fa-sign-in-alt me-2"></i> Iniciar sesión
+                                    </a>
+                                    <a href="register.php" class="btn btn-lg btn-outline-primary">
+                                        <i class="fas fa-user-plus me-2"></i> Registrarse
+                                    </a>
                                 </div>
                             </div>
                         </div>
